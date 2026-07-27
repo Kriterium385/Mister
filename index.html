@@ -1,0 +1,519 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Mister 🐱 - Pflegeplan</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- PWA / App-Icon Meta Tags -->
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐱</text></svg>">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🐱</text></svg>">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Mister 🐱">
+    <meta name="theme-color" content="#2563eb">
+
+    <style>
+        :root {
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            --bg-gradient: linear-gradient(180deg, #c7d2fe 0%, #e2e8f0 100%);
+            
+            /* Sitter Farben */
+            --olli-bg: #bfdbfe;
+            --olli-border: #1d4ed8;
+            --olli-text: #1e3a8a;
+            
+            --jens-bg: #fde68a;
+            --jens-border: #d97706;
+            --jens-text: #78350f;
+            
+            --anne-bg: #fbcfe8;
+            --anne-border: #db2777;
+            --anne-text: #831843;
+            
+            /* Noch offen: Grau & Gestrichelt */
+            --offen-bg: #e2e8f0;
+            --offen-border: #64748b;
+            --offen-text: #334155;
+        }
+
+        * { 
+            box-sizing: border-box; 
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        body { 
+            font-family: var(--font-family); 
+            background: var(--bg-gradient); 
+            margin: 0; 
+            padding: 20px 14px 40px 14px; 
+            color: #0f172a; 
+            min-height: 100vh;
+            letter-spacing: -0.01em;
+        }
+
+        .container { max-width: 460px; margin: 0 auto; }
+        
+        /* Modern Header */
+        .header { 
+            text-align: center; 
+            margin-bottom: 20px; 
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 20px;
+            border-radius: 24px;
+            border: 3px solid #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+        .header h1 { 
+            font-size: 26px; 
+            font-weight: 800;
+            margin: 0; 
+            letter-spacing: -0.03em;
+            background: linear-gradient(135deg, #1d4ed8 0%, #6d28d9 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .header p { 
+            color: #475569; 
+            font-size: 13px; 
+            margin: 4px 0 0 0; 
+            font-weight: 700;
+        }
+
+        /* Stats Component */
+        .stats-section {
+            background: white;
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 16px;
+            border: 3px solid #cbd5e1;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        }
+        .stats-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #475569;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .stats-grid { display: flex; gap: 8px; }
+        .stat-card {
+            flex: 1;
+            padding: 10px 4px;
+            border-radius: 14px;
+            text-align: center;
+            border: 2px solid transparent;
+            font-weight: 800;
+        }
+        .stat-card.stat-olli { background: var(--olli-bg); border-color: var(--olli-border); color: var(--olli-text); }
+        .stat-card.stat-jens { background: var(--jens-bg); border-color: var(--jens-border); color: var(--jens-text); }
+        .stat-card.stat-anne { background: var(--anne-bg); border-color: var(--anne-border); color: var(--anne-text); }
+        .stat-card.stat-offen { background: var(--offen-bg); border-color: var(--offen-border); border-style: dashed; color: var(--offen-text); }
+        
+        .stat-name { font-size: 11px; font-weight: 800; display: block; }
+        .stat-count { font-size: 18px; font-weight: 800; margin-top: 2px; }
+
+        /* Filter Pills */
+        .filter-section {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            overflow-x: auto;
+            padding-bottom: 4px;
+            margin-bottom: 18px;
+            scrollbar-width: none;
+        }
+        .filter-section::-webkit-scrollbar { display: none; }
+        .filter-btn {
+            padding: 8px 16px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 800;
+            border: 2px solid #94a3b8;
+            background: white;
+            color: #334155;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .filter-btn.active {
+            background: #0f172a;
+            color: white;
+            border-color: #0f172a;
+            box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
+        }
+
+        /* Modern Card Styling */
+        .card { 
+            border-radius: 20px; 
+            padding: 18px; 
+            margin-bottom: 14px; 
+            border: 3px solid transparent; 
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
+            transition: all 0.2s ease;
+            content-visibility: auto;
+        }
+        
+        .card.card-sitter-olli { background: var(--olli-bg); border-color: var(--olli-border); }
+        .card.card-sitter-jens { background: var(--jens-bg); border-color: var(--jens-border); }
+        .card.card-sitter-anne { background: var(--anne-bg); border-color: var(--anne-border); }
+        
+        /* Gestrichelte Umrandung für 'Offen' */
+        .card.card-sitter-offen { 
+            background: var(--offen-bg); 
+            border-color: var(--offen-border); 
+            border-style: dashed;
+            border-width: 3px;
+        }
+
+        .card-header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            margin-bottom: 16px; 
+        }
+        
+        .date-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.01em;
+            background: rgba(255, 255, 255, 0.95);
+            padding: 7px 12px;
+            border-radius: 12px;
+            border: 2px solid rgba(0, 0, 0, 0.15);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+
+        /* Dropdown Styling */
+        .sitter-select-wrapper { position: relative; }
+        .sitter-select {
+            appearance: none;
+            -webkit-appearance: none;
+            padding: 7px 30px 7px 12px;
+            border-radius: 100px;
+            font-size: 12px;
+            font-weight: 800;
+            font-family: var(--font-family);
+            border: 2px solid transparent;
+            cursor: pointer;
+            outline: none;
+            transition: all 0.2s;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.08);
+        }
+        .sitter-select-wrapper::after {
+            content: "▼";
+            font-size: 9px;
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            pointer-events: none;
+            opacity: 0.8;
+        }
+
+        .sitter-select.select-olli { background-color: #ffffff; color: var(--olli-text); border-color: var(--olli-border); }
+        .sitter-select.select-jens { background-color: #ffffff; color: var(--jens-text); border-color: var(--jens-border); }
+        .sitter-select.select-anne { background-color: #ffffff; color: var(--anne-text); border-color: var(--anne-border); }
+        .sitter-select.select-offen { background-color: #ffffff; color: var(--offen-text); border-color: var(--offen-border); border-style: dashed; }
+
+        /* Action Buttons / Checkboxes */
+        .checkbox-group { display: flex; gap: 10px; }
+        .checkbox-btn { 
+            flex: 1; 
+            display: flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 8px; 
+            background: rgba(255, 255, 255, 0.95); 
+            border: 2px solid rgba(0, 0, 0, 0.2); 
+            color: #1e293b;
+            border-radius: 14px; 
+            padding: 12px 10px; 
+            font-size: 13px; 
+            font-weight: 800;
+            cursor: pointer; 
+            user-select: none; 
+            transition: all 0.15s ease;
+        }
+        .checkbox-btn input { display: none; }
+        
+        .checkbox-btn.checked { 
+            background: #10b981; 
+            border-color: #047857; 
+            color: #ffffff; 
+            font-weight: 800; 
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.4);
+        }
+        
+        #loading { 
+            text-align: center; 
+            padding: 40px 20px; 
+            font-weight: 800; 
+            color: #2563eb; 
+            background: white; 
+            border-radius: 20px; 
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08); 
+            font-size: 15px;
+        }
+        .error-box { 
+            background: #fef2f2; 
+            border: 2px solid #fecaca; 
+            border-radius: 14px; 
+            padding: 16px; 
+            color: #991b1b; 
+            text-align: left; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>Mister 🐱</h1>
+        <p>Pflege- & Fütterungsplan</p>
+    </div>
+
+    <!-- Einsatz-Verteilung -->
+    <div class="stats-section">
+        <div class="stats-title">
+            <span>Dienst-Verteilung</span>
+            <span id="total-count" style="opacity:0.8;">Gesamt: 0 Dienste</span>
+        </div>
+        <div class="stats-grid">
+            <div class="stat-card stat-olli">
+                <span class="stat-name">Olli</span>
+                <span class="stat-count" id="count-olli">0</span>
+            </div>
+            <div class="stat-card stat-jens">
+                <span class="stat-name">Jens</span>
+                <span class="stat-count" id="count-jens">0</span>
+            </div>
+            <div class="stat-card stat-anne">
+                <span class="stat-name">Anne</span>
+                <span class="stat-count" id="count-anne">0</span>
+            </div>
+            <div class="stat-card stat-offen">
+                <span class="stat-name">Offen</span>
+                <span class="stat-count" id="count-offen">0</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter Leiste -->
+    <div class="filter-section">
+        <button class="filter-btn active" onclick="setFilter('alle', this)">Alle</button>
+        <button class="filter-btn" onclick="setFilter('Olli', this)">Olli</button>
+        <button class="filter-btn" onclick="setFilter('Jens', this)">Jens</button>
+        <button class="filter-btn" onclick="setFilter('Anne', this)">Anne</button>
+        <button class="filter-btn" onclick="setFilter('offen', this)">Offen</button>
+    </div>
+    
+    <div id="loading">Daten werden geladen...</div>
+    <div id="plan"></div>
+</div>
+
+<script>
+    // FÜGE HIER DEINE WEB-APP-URL EIN:
+    const API_URL = "https://script.google.com/macros/s/AKfycbw9_ZfywsZGhv6QXurpj00mr3i9tQjqTtPt8ih6TZ8XNry_dHW_PPZIW5qZWROu73_6IQ/exec";
+
+    let rawData = [];
+    let currentFilter = 'alle';
+
+    function getSitterKey(name) {
+        const n = String(name).toLowerCase();
+        if (n.includes("olli")) return "olli";
+        if (n.includes("jens")) return "jens";
+        if (n.includes("anne")) return "anne";
+        return "offen";
+    }
+
+    function fullDayName(shortDay) {
+        if (!shortDay) return "";
+        const clean = shortDay.trim().toUpperCase();
+        const map = {
+            "MO": "Montag", "MON": "Montag", "MONTAG": "Montag",
+            "DI": "Dienstag", "DIE": "Dienstag", "DIENSTAG": "Dienstag",
+            "MI": "Mittwoch", "MIT": "Mittwoch", "MITTWOCH": "Mittwoch",
+            "DO": "Donnerstag", "DON": "Donnerstag", "DONNERSTAG": "Donnerstag",
+            "FR": "Freitag", "FRE": "Freitag", "FREITAG": "Freitag",
+            "SA": "Samstag", "SAM": "Samstag", "SAMSTAG": "Samstag",
+            "SO": "Sonntag", "SON": "Sonntag", "SONNTAG": "Sonntag"
+        };
+        return map[clean] || shortDay;
+    }
+
+    function formatHeaderDate(item) {
+        let icon = "☀️";
+        let zeitText = "MORGENS";
+        
+        if (item.zeile % 2 !== 0) {
+            icon = "🌙";
+            zeitText = "ABENDS";
+        }
+
+        // Nutzt jetzt das korrigierte Datum vom Backend
+        let cleanDate = String(item.datum || "").trim();
+
+        // Spalte A (item.tag) enthält nun nur den Wochentag
+        let rawDay = String(item.tag).replace(/morgens|abends|morgen|abend/gi, '').trim();
+        let dayName = fullDayName(rawDay);
+
+        return `${icon} ${zeitText} ${dayName ? dayName + ', ' : ''}den ${cleanDate}`;
+    }
+
+    function updateStats() {
+        let olli = 0, jens = 0, anne = 0, offen = 0;
+        for (let i = 0; i < rawData.length; i++) {
+            const key = getSitterKey(rawData[i].geplant);
+            if (key === "olli") olli++;
+            else if (key === "jens") jens++;
+            else if (key === "anne") anne++;
+            else offen++;
+        }
+
+        document.getElementById("count-olli").innerText = olli + "x";
+        document.getElementById("count-jens").innerText = jens + "x";
+        document.getElementById("count-anne").innerText = anne + "x";
+        document.getElementById("count-offen").innerText = offen + "x";
+        document.getElementById("total-count").innerText = "Gesamt: " + rawData.length + " Dienste";
+    }
+
+    function setFilter(sitter, btn) {
+        currentFilter = sitter;
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        renderPlan();
+    }
+
+    function renderPlan() {
+        const planDiv = document.getElementById('plan');
+        
+        const filteredData = rawData.filter(item => {
+            if (currentFilter === 'alle') return true;
+            const key = getSitterKey(item.geplant);
+            return key === currentFilter.toLowerCase();
+        });
+
+        if (filteredData.length === 0) {
+            planDiv.innerHTML = '<div style="text-align:center; padding:40px; color:#475569; font-weight:700;">Keine Einträge gefunden.</div>';
+            return;
+        }
+
+        const html = filteredData.map(item => {
+            const sitterKey = getSitterKey(item.geplant);
+            const formattedDate = formatHeaderDate(item);
+            const isAbends = formattedDate.includes("ABENDS");
+            
+            return `
+            <div class="card card-sitter-${sitterKey}" id="card-${item.zeile}">
+                <div class="card-header">
+                    <div class="date-badge">
+                        ${formattedDate}
+                    </div>
+                    <div class="sitter-select-wrapper">
+                        <select class="sitter-select select-${sitterKey}" onchange="updateSitter(${item.zeile}, this.value, this)">
+                            <option value="Olli" ${sitterKey === "olli" ? "selected" : ""}>Olli</option>
+                            <option value="Jens" ${sitterKey === "jens" ? "selected" : ""}>Jens</option>
+                            <option value="Anne" ${sitterKey === "anne" ? "selected" : ""}>Anne</option>
+                            <option value="Noch offen" ${sitterKey === "offen" ? "selected" : ""}>Noch offen</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="checkbox-group">
+                    <label class="checkbox-btn ${item.futter ? 'checked' : ''}" id="btn-futter-${item.zeile}">
+                        <input type="checkbox" ${item.futter ? 'checked' : ''} onchange="toggleTask(${item.zeile}, 'futter', this)">
+                        🥣 Futter & Wasser
+                    </label>
+                    ${isAbends ? `
+                    <label class="checkbox-btn ${item.klo ? 'checked' : ''}" id="btn-klo-${item.zeile}">
+                        <input type="checkbox" ${item.klo ? 'checked' : ''} onchange="toggleTask(${item.zeile}, 'klo', this)">
+                        🧹 Katzenklo
+                    </label>
+                    ` : ''}
+                </div>
+            </div>`;
+        }).join('');
+
+        planDiv.innerHTML = html;
+        updateStats();
+    }
+
+    function loadPlan() {
+        const loadingEl = document.getElementById('loading');
+
+        window.handleData = function(data) {
+            loadingEl.style.display = 'none';
+            rawData = data;
+            renderPlan();
+        };
+
+        const script = document.createElement('script');
+        script.src = API_URL + "?callback=handleData";
+        script.onerror = function() {
+            loadingEl.innerHTML = '<div class="error-box">❌ Verbindungsfehler zu Google. Prüfe die URL in der index.html!</div>';
+        };
+        document.body.appendChild(script);
+    }
+
+    function sendPayload(payload) {
+        fetch(API_URL, {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'text/plain' },
+            body: JSON.stringify(payload)
+        }).catch(e => console.error("Speicherfehler:", e));
+    }
+
+    function updateSitter(zeile, neuerSitter, selectEl) {
+        const item = rawData.find(d => d.zeile === zeile);
+        if (item) item.geplant = neuerSitter;
+
+        const newKey = getSitterKey(neuerSitter);
+        selectEl.className = "sitter-select select-" + newKey;
+
+        const cardEl = document.getElementById(`card-${zeile}`);
+        if (cardEl) {
+            cardEl.className = `card card-sitter-${newKey}`;
+        }
+
+        updateStats();
+        sendPayload({ zeile: zeile, geplant: neuerSitter });
+    }
+
+    function toggleTask(zeile, typ, checkbox) {
+        const item = rawData.find(d => d.zeile === zeile);
+        if (item) item[typ] = checkbox.checked;
+
+        const btn = document.getElementById(`btn-${typ}-${zeile}`);
+        if (checkbox.checked) {
+            btn.classList.add('checked');
+        } else {
+            btn.classList.remove('checked');
+        }
+
+        const payload = { zeile: zeile };
+        payload[typ] = checkbox.checked;
+
+        sendPayload(payload);
+    }
+
+    loadPlan();
+</script>
+
+</body>
+</html>
