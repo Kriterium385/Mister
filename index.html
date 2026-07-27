@@ -328,7 +328,7 @@
 </div>
 
 <script>
-    // FÜGE HIER DEINE WEB-APP-URL EIN:
+    // TRAGE HIER DEINE GOOGLE APPS SCRIPT WEB-APP URL EIN:
     const API_URL = "https://script.google.com/macros/s/AKfycbw9_ZfywsZGhv6QXurpj00mr3i9tQjqTtPt8ih6TZ8XNry_dHW_PPZIW5qZWROu73_6IQ/exec";
 
     let rawData = [];
@@ -366,11 +366,17 @@
             zeitText = "ABENDS";
         }
 
-        // Nutzt jetzt das korrigierte Datum vom Backend
+        // Datum radikal bereinigen, falls dort noch ein ISO-Zeitstempel hängt
         let cleanDate = String(item.datum || "").trim();
+        if (cleanDate.includes("T")) {
+            let parts = cleanDate.split("T")[0].split("-"); // ['2026', '07', '31']
+            if (parts.length === 3) {
+                cleanDate = parts[2] + "." + parts[1] + "." + parts[0]; // 31.07.2026
+            }
+        }
 
-        // Spalte A (item.tag) enthält nun nur den Wochentag
-        let rawDay = String(item.tag).replace(/morgens|abends|morgen|abend/gi, '').trim();
+        // Wochentag extrahieren
+        let rawDay = String(item.tag || "").replace(/morgens|abends|morgen|abend|\d{4}-\d{2}-\d{2}.*/gi, '').trim();
         let dayName = fullDayName(rawDay);
 
         return `${icon} ${zeitText} ${dayName ? dayName + ', ' : ''}den ${cleanDate}`;
@@ -465,7 +471,7 @@
         const script = document.createElement('script');
         script.src = API_URL + "?callback=handleData";
         script.onerror = function() {
-            loadingEl.innerHTML = '<div class="error-box">❌ Verbindungsfehler zu Google. Prüfe die URL in der index.html!</div>';
+            loadingEl.innerHTML = '<div class="error-box">❌ Verbindungsfehler zu Google. Prüfe die API_URL in der index.html!</div>';
         };
         document.body.appendChild(script);
     }
