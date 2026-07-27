@@ -23,7 +23,6 @@
             --font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
             --bg-gradient: linear-gradient(180deg, #c7d2fe 0%, #e2e8f0 100%);
             
-            /* Sitter Farben */
             --olli-bg: #bfdbfe;
             --olli-border: #1d4ed8;
             --olli-text: #1e3a8a;
@@ -36,7 +35,6 @@
             --anne-border: #db2777;
             --anne-text: #831843;
             
-            /* Noch offen: Grau & Gestrichelt */
             --offen-bg: #e2e8f0;
             --offen-border: #64748b;
             --offen-text: #334155;
@@ -59,7 +57,6 @@
 
         .container { max-width: 460px; margin: 0 auto; }
         
-        /* Modern Header */
         .header { 
             text-align: center; 
             margin-bottom: 20px; 
@@ -87,7 +84,6 @@
             font-weight: 700;
         }
 
-        /* Stats Component */
         .stats-section {
             background: white;
             border-radius: 20px;
@@ -124,7 +120,6 @@
         .stat-name { font-size: 11px; font-weight: 800; display: block; }
         .stat-count { font-size: 18px; font-weight: 800; margin-top: 2px; }
 
-        /* Filter Pills */
         .filter-section {
             display: flex;
             align-items: center;
@@ -154,7 +149,6 @@
             box-shadow: 0 4px 12px rgba(15, 23, 42, 0.3);
         }
 
-        /* Modern Card Styling */
         .card { 
             border-radius: 20px; 
             padding: 18px; 
@@ -162,14 +156,11 @@
             border: 3px solid transparent; 
             box-shadow: 0 8px 20px rgba(0, 0, 0, 0.08);
             transition: all 0.2s ease;
-            content-visibility: auto;
         }
         
         .card.card-sitter-olli { background: var(--olli-bg); border-color: var(--olli-border); }
         .card.card-sitter-jens { background: var(--jens-bg); border-color: var(--jens-border); }
         .card.card-sitter-anne { background: var(--anne-bg); border-color: var(--anne-border); }
-        
-        /* Gestrichelte Umrandung für 'Offen' */
         .card.card-sitter-offen { 
             background: var(--offen-bg); 
             border-color: var(--offen-border); 
@@ -188,10 +179,9 @@
             display: inline-flex;
             align-items: center;
             gap: 6px;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 800;
             color: #0f172a;
-            letter-spacing: -0.01em;
             background: rgba(255, 255, 255, 0.95);
             padding: 7px 12px;
             border-radius: 12px;
@@ -199,7 +189,6 @@
             box-shadow: 0 2px 4px rgba(0,0,0,0.04);
         }
 
-        /* Dropdown Styling */
         .sitter-select-wrapper { position: relative; }
         .sitter-select {
             appearance: none;
@@ -212,7 +201,6 @@
             border: 2px solid transparent;
             cursor: pointer;
             outline: none;
-            transition: all 0.2s;
             box-shadow: 0 2px 6px rgba(0,0,0,0.08);
         }
         .sitter-select-wrapper::after {
@@ -231,7 +219,6 @@
         .sitter-select.select-anne { background-color: #ffffff; color: var(--anne-text); border-color: var(--anne-border); }
         .sitter-select.select-offen { background-color: #ffffff; color: var(--offen-text); border-color: var(--offen-border); border-style: dashed; }
 
-        /* Action Buttons / Checkboxes */
         .checkbox-group { display: flex; gap: 10px; }
         .checkbox-btn { 
             flex: 1; 
@@ -288,7 +275,6 @@
         <p>Pflege- & Fütterungsplan</p>
     </div>
 
-    <!-- Einsatz-Verteilung -->
     <div class="stats-section">
         <div class="stats-title">
             <span>Dienst-Verteilung</span>
@@ -314,7 +300,6 @@
         </div>
     </div>
 
-    <!-- Filter Leiste -->
     <div class="filter-section">
         <button class="filter-btn active" onclick="setFilter('alle', this)">Alle</button>
         <button class="filter-btn" onclick="setFilter('Olli', this)">Olli</button>
@@ -328,8 +313,8 @@
 </div>
 
 <script>
-    // TRAGE HIER DEINE GOOGLE APPS SCRIPT WEB-APP URL EIN:
-    const API_URL = "https://script.google.com/macros/s/AKfycbxcwYujuKggB4asbp7g1eJSOAnW-bAvuookU4aKqSd5BKVMuuWvx-XRqIqA8YpgLy--GQ/exec";
+    // TRAGE HIER DEINE ECHTE GOOGLE APPS SCRIPT WEB-APP URL EIN:
+    const API_URL = "https://script.google.com/macros/s/AKfycbzed5-sGv_qmgFj62SREqhuTKIVvY1Rs4nyIfN0AV-gyqyFQ0WR-HUYsKYIdUfwSsw9gQ/exec";
 
     let rawData = [];
     let currentFilter = 'alle';
@@ -342,21 +327,6 @@
         return "offen";
     }
 
-    function fullDayName(shortDay) {
-        if (!shortDay) return "";
-        const clean = shortDay.trim().toUpperCase();
-        const map = {
-            "MO": "Montag", "MON": "Montag", "MONTAG": "Montag",
-            "DI": "Dienstag", "DIE": "Dienstag", "DIENSTAG": "Dienstag",
-            "MI": "Mittwoch", "MIT": "Mittwoch", "MITTWOCH": "Mittwoch",
-            "DO": "Donnerstag", "DON": "Donnerstag", "DONNERSTAG": "Donnerstag",
-            "FR": "Freitag", "FRE": "Freitag", "FREITAG": "Freitag",
-            "SA": "Samstag", "SAM": "Samstag", "SAMSTAG": "Samstag",
-            "SO": "Sonntag", "SON": "Sonntag", "SONNTAG": "Sonntag"
-        };
-        return map[clean] || shortDay;
-    }
-
     function formatHeaderDate(item) {
         let icon = "☀️";
         let zeitText = "MORGENS";
@@ -366,20 +336,10 @@
             zeitText = "ABENDS";
         }
 
-        // Datum radikal bereinigen, falls dort noch ein ISO-Zeitstempel hängt
-        let cleanDate = String(item.datum || "").trim();
-        if (cleanDate.includes("T")) {
-            let parts = cleanDate.split("T")[0].split("-"); // ['2026', '07', '31']
-            if (parts.length === 3) {
-                cleanDate = parts[2] + "." + parts[1] + "." + parts[0]; // 31.07.2026
-            }
-        }
+        // Zeigt exakt das an, was in Spalte A des Google Sheets steht
+        let tagText = item.tag ? item.tag.trim() : "";
 
-        // Wochentag extrahieren
-        let rawDay = String(item.tag || "").replace(/morgens|abends|morgen|abend|\d{4}-\d{2}-\d{2}.*/gi, '').trim();
-        let dayName = fullDayName(rawDay);
-
-        return `${icon} ${zeitText} ${dayName ? dayName + ', ' : ''}den ${cleanDate}`;
+        return `${icon} ${zeitText} — ${tagText}`;
     }
 
     function updateStats() {
@@ -422,14 +382,14 @@
 
         const html = filteredData.map(item => {
             const sitterKey = getSitterKey(item.geplant);
-            const formattedDate = formatHeaderDate(item);
-            const isAbends = formattedDate.includes("ABENDS");
+            const formattedHeader = formatHeaderDate(item);
+            const isAbends = formattedHeader.includes("ABENDS");
             
             return `
             <div class="card card-sitter-${sitterKey}" id="card-${item.zeile}">
                 <div class="card-header">
                     <div class="date-badge">
-                        ${formattedDate}
+                        ${formattedHeader}
                     </div>
                     <div class="sitter-select-wrapper">
                         <select class="sitter-select select-${sitterKey}" onchange="updateSitter(${item.zeile}, this.value, this)">
